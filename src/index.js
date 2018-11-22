@@ -14,13 +14,20 @@ export default class ReactPdfJs extends Component {
     page: PropTypes.number,
     onDocumentComplete: PropTypes.func,
     scale: PropTypes.number,
-    className: PropTypes.string,
+    fillWidth: PropTypes.bool,
+    fillHeight: PropTypes.bool,
+    parentWidth: PropTypes.number,
+    parentHeight: PropTypes.number,
   }
 
   static defaultProps = {
     page: 1,
     onDocumentComplete: null,
     scale: 1,
+    fillWidth: false,
+    fillHeight: false,
+    parentWidth: 1,
+    parentHeight: 1,
   }
 
   state = {
@@ -54,18 +61,41 @@ export default class ReactPdfJs extends Component {
     }
   }
 
+  calculateScale = (scale, fillWidth, fillHeight, view, parentWidth, parentHeight) => {
+    if (fillWidth) {
+      const pageWidth = view[2] - view[0];
+      return parentWidth / pageWidth;
+    }
+    if (fillHeight) {
+      const pageHeight = view[3] - view[1];
+      return parentHeight / pageHeight;
+    }
+    return scale;
+  }
+
   drawPDF = (page) => {
-    const { scale } = this.props;
-    const viewport = page.getViewport(scale);
+    const {
+      scale: pScale,
+      fillHeight,
+      fillWidth,
+      parentWidth,
+      parentHeight,
+    } = this.props;
     const { canvas } = this;
+
     const canvasContext = canvas.getContext('2d');
+    const dpiScale = window.devicePixelRatio || 1;
+    const scale = this.calculateScale(pScale, fillWidth, fillHeight, page.view, parentWidth, parentHeight);
+    const adjustedScale = scale * dpiScale;
+    const viewport = page.getViewport(adjustedScale);
+    canvas.style.width = `${viewport.width / dpiScale}px`;
+    canvas.style.height = `${viewport.height / dpiScale}px`;
     canvas.height = viewport.height;
     canvas.width = viewport.width;
-    const renderContext = {
+    page.render({
       canvasContext,
       viewport,
-    };
-    page.render(renderContext);
+    });
   }
 
   render() {
