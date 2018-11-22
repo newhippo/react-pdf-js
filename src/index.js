@@ -50,14 +50,15 @@ export default class ReactPdfJs extends Component {
     });
   }
 
-  componentWillReceiveProps(newProps) {
-    const { page, scale } = this.props;
+  componentDidUpdate(prevProps) {
+    const { oldPage, oldScale } = prevProps;
     const { pdf } = this.state;
-    if (newProps.page !== page) {
-      pdf.getPage(newProps.page).then(p => this.drawPDF(p));
+
+    if (this.props.page !== oldPage) {
+      pdf.getPage(this.props.page).then(p => this.drawPDF(p));
     }
-    if (newProps.scale !== scale) {
-      pdf.getPage(newProps.page).then(p => this.drawPDF(p));
+    if (this.props.scale !== oldScale) {
+      pdf.getPage(this.props.page).then(p => this.drawPDF(p));
     }
   }
 
