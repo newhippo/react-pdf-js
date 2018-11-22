@@ -18,6 +18,8 @@ export default class ReactPdfJs extends Component {
     fillHeight: PropTypes.bool,
     parentWidth: PropTypes.number,
     parentHeight: PropTypes.number,
+    loading: PropTypes.node,
+    className: PropTypes.string,
   }
 
   static defaultProps = {
@@ -28,6 +30,8 @@ export default class ReactPdfJs extends Component {
     fillHeight: false,
     parentWidth: 1,
     parentHeight: 1,
+    loading: 'Loading PDF...',
+    className: undefined,
   }
 
   state = {
@@ -98,7 +102,11 @@ export default class ReactPdfJs extends Component {
   }
 
   render() {
-    const { className } = this.props;
+    const { className, loading } = this.props;
+    const { pdf } = this.state;
+    if (loading && !pdf) {
+      return loading;
+    }
     return <canvas ref={(canvas) => { this.canvas = canvas; }} className={className} />;
   }
 }
